@@ -1,7 +1,7 @@
 package main
 
 import (
-	"identidock/app/server"
+	"identidock/server"
 	"log"
 	"net/http"
 	"os"
