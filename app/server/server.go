@@ -21,6 +21,7 @@ type server struct {
 	r *redis.Client
 }
 
+// NewServer - new server handler
 func NewServer(r *redis.Client) http.Handler {
 	s := server{r}
 
@@ -37,7 +38,6 @@ func (s *server) greet(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *server) mainPage(w http.ResponseWriter, r *http.Request) {
-
 	data := struct {
 		Name string
 		Hash string
