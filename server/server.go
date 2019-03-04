@@ -35,10 +35,6 @@ func NewServer(r *redis.Client) http.Handler {
 	return h
 }
 
-func (s *server) greet(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello World! %s", time.Now())
-}
-
 func (s *server) mainPage(w http.ResponseWriter, r *http.Request) {
 	data := struct {
 		Name string
@@ -52,7 +48,11 @@ func (s *server) mainPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	h := sha256.New()
-	h.Write([]byte(salt + data.Name))
+	if _, err := h.Write([]byte(salt + data.Name)); err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 	hash := h.Sum(nil)
 	data.Hash = fmt.Sprintf("%x", hash)
 	log.Println("main page | post hash = ", data.Hash)
@@ -70,7 +70,9 @@ func (s *server) mainPage(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	tmpl.Execute(w, data)
+	if err := tmpl.Execute(w, data); err != nil {
+		log.Println(err)
+	}
 }
 
 func (s *server) getIdentIcon(w http.ResponseWriter, r *http.Request) {
@@ -106,5 +108,7 @@ func (s *server) getIdentIcon(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "image/png")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(data))
+	if _, err := w.Write([]byte(data)); err != nil {
+		log.Println(err)
+	}
 }

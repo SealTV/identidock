@@ -22,11 +22,12 @@ func Test_server_mainPage(t *testing.T) {
 		Addr: s.Addr(),
 	}
 	r := redis.NewClient(&opt)
-
 	h := NewServer(r)
 
 	go func() {
-		http.ListenAndServe(":5000", h)
+		if err := http.ListenAndServe(":5000", h); err != nil {
+			t.Error(err)
+		}
 	}()
 
 	data := url.Values{
@@ -43,8 +44,11 @@ func Test_server_mainPage(t *testing.T) {
 		t.Errorf("Invalid response status. Expect: %v, got: %v", http.StatusOK, resp.StatusCode)
 	}
 
-	bytes := make([]byte, 1024, 1024)
-	resp.Body.Read(bytes)
+	bytes := make([]byte, 1024)
+	if _, err := resp.Body.Read(bytes); err != nil {
+		t.Fatal(err)
+	}
+
 	respString := string(bytes)
 	if !strings.Contains(respString, "Hello") {
 		t.Errorf("Must contain string 'Hello'")
@@ -70,7 +74,9 @@ func Test_server_html_escaping(t *testing.T) {
 	h := NewServer(r)
 
 	go func() {
-		http.ListenAndServe(":5000", h)
+		if err := http.ListenAndServe(":5000", h); err != nil {
+			t.Error(err)
+		}
 	}()
 
 	data := url.Values{
@@ -81,10 +87,16 @@ func Test_server_html_escaping(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			t.Fatal(err)
+		}
+	}()
 
-	bytes := make([]byte, 1024, 1024)
-	resp.Body.Read(bytes)
+	bytes := make([]byte, 1024)
+	if _, err := resp.Body.Read(bytes); err != nil {
+		t.Error(err)
+	}
 	respString := string(bytes)
 	if strings.Contains(respString, "<b>") {
 		t.Errorf("Error escaping html!")

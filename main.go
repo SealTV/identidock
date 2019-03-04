@@ -29,13 +29,14 @@ func main() {
 	logger := log.New(os.Stdout, "", 0)
 	h := server.NewServer(r)
 	go func() {
-		http.ListenAndServe(":5000", h)
+		if err := http.ListenAndServe(":5000", h); err != nil {
+			log.Fatal(err)
+		}
 	}()
 
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt)
 	signal.Notify(stop, syscall.SIGTERM)
-	signal.Notify(stop, syscall.SIGKILL)
 
 	<-stop
 	logger.Println("Server gracefully stopped")
