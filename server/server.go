@@ -7,6 +7,8 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
+	"path"
 	"time"
 
 	"github.com/go-redis/redis"
@@ -55,7 +57,14 @@ func (s *server) mainPage(w http.ResponseWriter, r *http.Request) {
 	data.Hash = fmt.Sprintf("%x", hash)
 	log.Println("main page | post hash = ", data.Hash)
 
-	tmpl, err := template.ParseFiles("./templates/index.html")
+	dir, err := os.Getwd()
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	tmpl, err := template.ParseFiles(path.Join(dir, "../templates/index.html"))
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
