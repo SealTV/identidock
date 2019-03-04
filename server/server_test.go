@@ -28,7 +28,7 @@ func Test_server_mainPage(t *testing.T) {
 
 	go func() {
 		if err := http.ListenAndServe(":5001", h); err != nil {
-			t.Fatal(err)
+			t.Error(err)
 		}
 	}()
 	time.Sleep(1 * time.Millisecond)
