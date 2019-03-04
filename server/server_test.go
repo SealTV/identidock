@@ -1,7 +1,6 @@
-package main
+package server
 
 import (
-	"identidock/server"
 	"net/http"
 	"net/url"
 	"strings"
@@ -24,7 +23,7 @@ func Test_server_mainPage(t *testing.T) {
 	}
 	r := redis.NewClient(&opt)
 
-	h := server.NewServer(r)
+	h := NewServer(r)
 
 	go func() {
 		http.ListenAndServe(":5000", h)
@@ -68,7 +67,7 @@ func Test_server_html_escaping(t *testing.T) {
 	}
 	r := redis.NewClient(&opt)
 
-	h := server.NewServer(r)
+	h := NewServer(r)
 
 	go func() {
 		http.ListenAndServe(":5000", h)
