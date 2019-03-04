@@ -1,10 +1,12 @@
 package server
 
 import (
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/go-redis/redis"
 
@@ -25,16 +27,16 @@ func Test_server_mainPage(t *testing.T) {
 	h := NewServer(r)
 
 	go func() {
-		if err := http.ListenAndServe(":5000", h); err != nil {
-			t.Error(err)
+		if err := http.ListenAndServe(":5001", h); err != nil {
+			t.Fatal(err)
 		}
 	}()
-
+	time.Sleep(1 * time.Millisecond)
 	data := url.Values{
 		"name": []string{"SealTV"},
 	}
 
-	resp, err := http.PostForm("http://localhost:5000", data)
+	resp, err := http.PostForm("http://localhost:5001", data)
 	if err != nil {
 		t.Error(err)
 	}
@@ -45,7 +47,7 @@ func Test_server_mainPage(t *testing.T) {
 	}
 
 	bytes := make([]byte, 1024)
-	if _, err := resp.Body.Read(bytes); err != nil {
+	if _, err := resp.Body.Read(bytes); err != nil && err != io.EOF {
 		t.Fatal(err)
 	}
 
@@ -74,27 +76,28 @@ func Test_server_html_escaping(t *testing.T) {
 	h := NewServer(r)
 
 	go func() {
-		if err := http.ListenAndServe(":5000", h); err != nil {
+		if err := http.ListenAndServe(":5002", h); err != nil {
 			t.Error(err)
 		}
 	}()
+	time.Sleep(1 * time.Millisecond)
 
 	data := url.Values{
 		"name": []string{"><b>TEST</b><!--"},
 	}
 
-	resp, err := http.PostForm("http://localhost:5000", data)
+	resp, err := http.PostForm("http://localhost:5002", data)
 	if err != nil {
 		t.Error(err)
 	}
 	defer func() {
 		if err := resp.Body.Close(); err != nil {
-			t.Fatal(err)
+			t.Error(err)
 		}
 	}()
 
 	bytes := make([]byte, 1024)
-	if _, err := resp.Body.Read(bytes); err != nil {
+	if _, err := resp.Body.Read(bytes); err != nil && err != io.EOF {
 		t.Error(err)
 	}
 	respString := string(bytes)
