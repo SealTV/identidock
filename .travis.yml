@@ -30,12 +30,12 @@ notifications:
 # Make sure golangci-lint is vendored.
 before_script:
   - go get -v
+  - curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s -- -b $(go env GOPATH)/bin v1.15.0
+  - golangci-lint --version
 
-# script always runs to completion (set +e). If we have linter issues AND a
+  # script always runs to completion (set +e). If we have linter issues AND a
 # failing test, we want to see both. Configure golangci-lint with a
 # .golangci.yml file at the top level of your repo.
 script:
-  - curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s -- -b $(go env GOPATH)/bin v1.15.0
-  - golangci-lint --version
   - golangci-lint run       # run a bunch of code checkers/linters in parallel
   - go test -v -race ./...  # Run all the tests with the race detector enabled
