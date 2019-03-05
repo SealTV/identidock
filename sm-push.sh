@@ -8,6 +8,7 @@ function tag_and_push {
     fi
 }
 VERSION_TAG=v.$TRAVIS_BUILD_NUMBER
+echo "${TRAVIS_GO_VERSION}"
 if [ "${TRAVIS_GO_VERSION}" = "${GO_FOR_RELEASE}" ]; then
 cat > ~/.dockercfg << EOF
 {
