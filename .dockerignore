@@ -1,0 +1,10 @@
+.vscode
+.git
+*/.git
+.gitignore
+*/.gitignore
+*README.md
+.travis.yml
+
+go.mod
+go.sum
