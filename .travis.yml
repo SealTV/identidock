@@ -35,5 +35,5 @@ script:
   - go build
 
 after_script:
-  - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
+  - ./cc-test-reporter after-build -t gocov -d -p identidock --exit-code $TRAVIS_TEST_RESULT
   - ./sm-push.sh
